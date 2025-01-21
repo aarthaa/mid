@@ -1,51 +1,199 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Detail</title>
-    <!-- <link rel="stylesheet" href={% static 'style.css' %}"> Include your CSS file -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Include your CSS file -->
-</head>
-<body>
-    <div class="product-detail-container">
-        <div class="product-image">
-            <!-- Image of the product -->
-            <img src="{% static '%}" alt="Product Image">  ..........
+<style>
+    .product-detail-container {
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .product-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+    .product-image-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .detail-product-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+    .product-images-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .product-thumb {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    .product-info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .product-title {
+        font-size: 32px;
+        color: #333;
+        margin: 0;
+    }
+    .product-price {
+        font-size: 24px;
+        color: #2c5282;
+        font-weight: bold;
+    }
+    .product-description {
+        color: #666;
+        line-height: 1.6;
+    }
+    .product-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .stock-status {
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .in-stock {
+        background: #c6f6d5;
+        color: #2f855a;
+    }
+    .out-of-stock {
+        background: #fed7d7;
+        color: #c53030;
+    }
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        width: 100%;
+    }
+    .btn-buy {
+        background-color: #2c5282;
+        color: white;
+    }
+    .btn-cart {
+        background-color: #edf2f7;
+        color: #2c5282;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+    @media (max-width: 768px) {
+        .product-detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="product-detail-container">
+    <div class="product-detail-grid">
+        <div class="product-image-section">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-product-image">
+            
+            {% if product_images %}
+            <div class="product-images-grid">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumb">
+                {% for img in product_images %}
+                <img src="{{ img.image.url }}" alt="{{ product.name }}" class="product-thumb">
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
-        <div class="product-description">
-            <!-- Description of the product -->
-            <h2>Product Name</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae justo non turpis luctus lacinia eget eu quam. Ut eget ullamcorper velit, id commodo odio.</p>
-            <p>Price: $XX.XX</p>
-            <!-- Additional details about the product -->
-            <h3>Additional Details</h3>
-            <ul>
-                <li>Feature 1: Value</li>
-                <li>Feature 2: Value</li>
-                <li>Feature 3: Value</li>
-                <!-- Add more details as needed -->
-            </ul>
-        </div>
-        <div class="similar-products">
-           
-            <h3>Similar Products</h3>
-            <div class="scrollable-products">
-                <!-- Scrollable list of other images -->
-                <div class="product-thumbnail">
-                    <img src="/path/to/product-image1.jpg" alt="Product Image 1">
-                </div>
-                <div class="product-thumbnail">
-                    <img src="/path/to/product-image2.jpg" alt="Product Image 2">
+        
+        <div class="product-info-section">
+            <h1 class="product-title">{{ product.name }}</h1>
+            <div class="product-price">Rs. {{ product.price }}</div>
+            
+            <div class="product-meta">
+                <div class="stock-status {% if product.stock == 'IN STOCK' %}in-stock{% else %}out-of-stock{% endif %}">
+                    {{ product.stock }}
                 </div>
                 
+                {% if product.categorie %}
+                <div class="product-category">
+                    <span>Category: {{ product.categorie.model_name }}</span>
+                </div>
+                {% endif %}
+                
+                {% if product.color %}
+                <div class="product-color">
+                    <span>Color: {{ product.color.name }}</span>
+                </div>
+                {% endif %}
             </div>
+            
+            {% if product.description %}
+            <div class="product-description">
+                {{ product.description }}
+            </div>
+            {% endif %}
+            
+            {% if product.stock == 'IN STOCK' %}
+            <div class="button-group">
+                <form action="{% url 'cart' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="btn btn-buy">Buy Now</button>
+                </form>
+                <form class="add-to-cart-form" data-product-id="{{ product.id }}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-cart add-to-cart">Add to Cart</button>
+                </form>
+            </div>
+            {% else %}
+            <button class="btn btn-cart" disabled>Out of Stock</button>
+            {% endif %}
         </div>
     </div>
-</body>
-</html>
+
+    {% if similar_products %}
+    <div class="similar-products-section">
+        <h2 class="section-title">Similar Products</h2>
+        <div class="product-grid">
+            {% for prod in similar_products %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' prod.id %}" class="product-link">
+                    <img src="{{ prod.image.url }}" alt="{{ prod.name }}" class="product-image">
+                    <div class="product-detail">
+                        <h4>{{ prod.name | truncatechars:20 }}</h4>
+                        <div class="product-price">Rs. {{ prod.price }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const thumbnails = document.querySelectorAll('.product-thumb');
+    const mainImage = document.querySelector('.detail-product-image');
+    
+    thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            mainImage.src = this.src;
+        });
+    });
+});
+</script>
 {% endblock %}

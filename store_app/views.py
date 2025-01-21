@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.views import View
 from store_app.models import Product, Categorie
 from django.contrib.auth.models import User
@@ -44,7 +44,7 @@ def product(request):
     CATID = request.GET.get('category')
     if CATID:
         products =Product.objects.filter( categorie=CATID)
-    else:
+    else:       
         products = Product.objects.all()
 
 
@@ -310,3 +310,28 @@ def place_order(request):
     cart.clear()
 
     return HttpResponse("Order placed successfully!")
+
+
+
+from django.shortcuts import get_object_or_404, render
+from .models import Product, images, tag
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    # Get additional images
+    product_images = images.objects.filter(product=product)
+    # Get product tags
+    product_tags = tag.objects.filter(product=product)
+    # Get similar products from same category
+    similar_products = Product.objects.filter(
+        categorie=product.categorie
+    ).exclude(id=product_id)[:4]
+    
+    context = {
+        'product': product,
+        'product_images': product_images,
+        'product_tags': product_tags,
+        'similar_products': similar_products
+    }
+    
+    return render(request, 'main/detail.html', context)  # Updated template path
