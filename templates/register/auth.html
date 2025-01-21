@@ -1,0 +1,113 @@
+{% block content %}
+    {% load static %}
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+        <script src="{% static 'js/scripts.js' %}"></script>
+        <title>Login or Register</title>
+    </head>
+
+    <body>
+
+        <div class="container" id="container">
+            
+            
+            <div class="form-container sign-up">
+
+                <form id="register-form" action="{% url 'register' %}" method="post">
+                    {% csrf_token %}
+                    <h1>Create Account</h1>
+
+                    <div class="social-icons">
+                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                    <span>or use your email for registration</span>
+
+                    <input type="text" name="first_name" placeholder="First Name" />
+                    <input type="text" name="last_name" placeholder="Last Name" />
+                    <input type="text" name="username" placeholder="Username" />
+                    
+            
+                    <input name="email" placeholder="Email" type="email" />
+                      {% if error_message %}
+                  <div style="color: red;">{{ error_message }}</div>
+                   {% endif %}
+                    <input type="password" name="pass1" placeholder="Password" />
+                    <input type="password" name="pass2" placeholder="Confirm Password" />
+                    <div id="password-error" style="color: red;"></div> <!-- Error message element -->
+
+                    <button type="submit" value="Register">Sign Up</button>
+                </form>
+            </div>
+            <div class="form-container sign-in">
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <h1>Sign In</h1>
+                    <div class="social-icons">
+                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                       {% if error_message %}
+                <div style="color: red;">{{ error_message }}</div>
+                   {% endif %}
+            
+                  
+                    <input type="text" name="username" placeholder="Username">
+                    <input type="password"  name="password" placeholder="Password">
+                    <a href="#">Forget Your Password?</a>
+                    <button type="submit" value="Login">Sign In</button>
+                </form>
+            </div>
+            <div class="toggle-container">
+                <div class="toggle">
+                    <div class="toggle-panel toggle-right">
+                        <h1>Hello, Friend!</h1>
+                        <p>Register with your personal details to use all site features</p>
+                        <button class="hidden" id="register">Sign Up</button>
+                    </div>
+                    <div class="toggle-panel toggle-left">
+                        <h1>Welcome!</h1>
+                        <p>Register your details to use all site features</p>
+                        <button class="hidden" id="login">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const container = document.getElementById('container');
+            const registerBtn = document.getElementById('register');
+            const loginBtn = document.getElementById('login');
+
+            registerBtn.addEventListener('click', () => {
+                container.classList.add("active");
+            });
+
+            loginBtn.addEventListener('click', () => {
+                container.classList.remove("active");
+            });
+
+            // Add event listener for form submission
+            const registerForm = document.querySelector('#register-form');
+            registerForm.addEventListener('submit', function(event) {
+                const pass1 = document.querySelector('input[name="pass1"]').value;
+                const pass2 = document.querySelector('input[name="pass2"]').value;
+
+                // Check if passwords match
+                if (pass1 !== pass2) {
+                    event.preventDefault(); // Prevent form submission
+                    document.querySelector('#password-error').textContent = 'Passwords do not match';
+                }
+            });
+        </script>
+    </body>
+
+    </html>
+
+{% endblock %}

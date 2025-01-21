@@ -1,0 +1,194 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<div class="container" id="container">
+    <div class="form-container sign-in">
+
+        <div class="profile-page">
+            <div class="profile-header">
+                
+                <div class="user-details">
+                    <h2>Welcome, {{ user.username }}</h2>
+                    <p>Contact: {{ user.email }}</p>
+                    <p>Member Since: {{ user.date_joined|date:"F Y" }}</p>
+                    <!-- Add any additional user information here -->
+                </div>
+            </div>
+
+            <div class="navigation-links">
+                <a href="{% url 'index' %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{% url 'cart' %}">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                </a>
+                <a href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <!-- Order History Section -->
+           
+
+            <!-- Pending Deliveries Section -->
+            <div class="pending-deliveries-section">
+                <h3>Pending Deliveries</h3>
+                <div class="delivery-list">
+                    {% for delivery in deliveries %}
+                    <div class="delivery-item">
+                        <p>Order ID: {{ delivery.order.id }}</p>
+                        <p>Expected Delivery Date: {{ delivery.expected_delivery_date }}</p>
+                        <p>Products:</p>
+                        <ul>
+                            {% for product in delivery.products.all %}
+                            <li>{{ product.name }} - Rs {{ product.price }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Wishlist Section -->
+            <div class="wishlist-section">
+                <h3>Wishlist</h3>
+              <div id="products">
+    {% for key, value in request.session.cart.items %}
+    <div class="product" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; background-color: #f9f9f9;">
+      <h5>{{ value.name | truncatewords:10 }}</h5>
+      <img src="{{ value.image }}" width="120" height="100">
+
+      <p>Price: ₹{{ value.price }}</p>
+      <button class="add-to-cart-btn" data-product="{{ key }}" data-name="{{ value.name }}" data-price="{{ value.price }}" style="padding: 5px 10px; background-color: #007bff; color: #fff; border: none; cursor: pointer;">Add to Cart</button>
+    </div>
+    {% endfor %}
+  </div>
+  
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<style>
+    /* Apply styles for profile header */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+
+        border-bottom: 1px solid #ccc; /* Add border for separation */
+    }
+
+    /* Style the user avatar */
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 50%;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: auto;
+    }
+
+    /* Style the user details */
+    .user-details {
+        margin-left: 20px;
+    }
+
+    .user-details h2, .user-details p {
+        color: #333; /* Dark text color */
+        margin: 5px 0;
+    }
+
+    /* Style the navigation links */
+    .navigation-links {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        background-color: #35adc2; /* Light gray background */
+        padding: 10px 0;
+    }
+
+    .navigation-links a {
+        color: #333; /* Dark text color */
+        text-decoration: none;
+        font-size: 18px;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .navigation-links a:hover {
+        background-color: #ddd; /* Lighter background color on hover */
+    }
+
+    /* Style the order history and pending deliveries sections */
+    .order-history-section, .pending-deliveries-section, .wishlist-section, .recommendations-section {
+        background-color: #ffffff; /* Lighter background color */
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 10px;
+    }
+
+    .order-history-section h3, .pending-deliveries-section h3, .wishlist-section h3, .recommendations-section h3 {
+        color: #333; /* Dark text color */
+    }
+
+    .order-item, .delivery-item {
+        margin-bottom: 20px;
+    }
+
+    .order-item p, .delivery-item p {
+        margin: 0;
+    }
+
+    .order-item ul, .delivery-item ul {
+        padding: 0;
+        margin-top: 5px;
+    }
+
+    .order-item ul li, .delivery-item ul li {
+        margin-left: 20px;
+    }
+
+    /* Additional styles for the footer */
+    .footer {
+ /* Light gray background */
+       /* Dark text color */
+        padding: 20px;
+        text-align: center;
+      
+        bottom: 0;
+        width: 100%;
+        
+        
+        
+        .product {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    float: left; /* Align items to the left */
+    width: 100%; /* Ensures each item takes full width */
+    box-sizing: border-box; /* Include padding and border in the width calculation */
+}
+
+.product img {
+    display: block;
+    margin: 0 auto; /* Center the image horizontally */
+}
+    }
+</style>
+
+{% endblock %}

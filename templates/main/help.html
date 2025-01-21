@@ -1,0 +1,135 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<style>
+    .help-section {
+        margin-top: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        font-family: Arial, sans-serif; /* Change font family */
+    }
+
+    .faq-container {
+        flex: 1;
+        margin-right: 20px; /* Add margin for separation */
+    }
+
+    .faq {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .question {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        position: relative;
+        background-color: #f8f8f8; /* Light gray background */
+    }
+
+    .question h3 {
+        cursor: pointer;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .question h3::after {
+        content: "\25BC"; /* Down arrow character */
+        float: right;
+    }
+
+    .answer {
+        display: none;
+        font-size: 16px;
+        color: #666;
+    }
+
+    .answer.active {
+        display: block;
+    }
+
+    .answer p {
+        margin-top: 5px;
+    }
+
+    .question.active .answer {
+        display: block;
+    }
+
+    .image-container {
+        flex: 1;
+    }
+
+    .image-container img {
+        max-width: 100%; /* Ensure image doesn't exceed container */
+        height: auto; /* Maintain aspect ratio */
+    }
+
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #8399ee; /* Blue footer */
+        color: #fff; /* White text */
+        padding: 20px;
+        text-align: center;
+    }
+</style>
+
+<div class="help-section">
+    <div class="faq-container">
+        <h2 style="color: #333;">Need Help?</h2>
+        <div class="faq">
+            <div class="question">
+                <h3>How can I place an order?</h3>
+                <div class="answer">
+                    <p>To place an order, simply browse our collection of gifts, select the item you want, and proceed to checkout. Follow the prompts to enter your delivery details and payment information.</p>
+                </div>
+            </div>
+            <div class="question">
+                <h3>Can I schedule a specific delivery time?</h3>
+                <div class="answer">
+                    <p>Yes, during the checkout process, you can specify a preferred delivery date and time. We'll do our best to accommodate your request, but please note that delivery slots may be subject to availability.</p>
+                </div>
+            </div>
+            <div class="question">
+                <h3>How do I track my order?</h3>
+                <div class="answer">
+                    <p>Once your order has been shipped, you will receive a tracking number via email. You can use this tracking number to monitor the status and location of your package.</p>
+                </div>
+            </div>
+            <div class="question">
+                <h3>What is your return policy?</h3>
+                <div class="answer">
+                    <p>We offer a 30-day return policy for most items. If you're not satisfied with your purchase, you can return it within 30 days of delivery for a full refund or exchange.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="image-container">
+        <img src="{% static 'images/illustration.png' %}" alt="Illustration">
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questions = document.querySelectorAll('.question');
+
+        questions.forEach(function(question) {
+            const answer = question.querySelector('.answer');
+
+            question.addEventListener('click', function() {
+                question.classList.toggle('active');
+                answer.classList.toggle('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

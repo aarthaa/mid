@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<body>
+  
+  <style>
+    /* Custom styles for the quantity input */
+    .quantity-input {
+      width: 60px; /* Adjust width as needed */
+      height: 40px; /* Adjust height as needed */
+      background-color: lightgray; /* Set background color */
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    /* Positioning the cart on the right side */
+    #products {
+      float: left;
+      width: 70%; /* Adjust as needed */
+    }
+
+    #cart {
+      float: right;
+      width: 30%; /* Adjust as needed */
+    }
+
+    /* Clear float */
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  </style>
+
+  <div id="products">
+    {% for key, value in request.session.cart.items %}
+    <div class="product" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; background-color: #f9f9f9;">
+      <h5>{{ value.name | truncatewords:10 }}</h5>
+      <img src="{{ value.image }}" width="120" height="100">
+      <p>Price: ₹{{ value.price }}</p>
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity_{{ key }}" name="quantity" min="1" value="1" class="quantity-input">
+
+      <!-- Form for deletion -->
+      <form action="{% url 'remove-from-cart' key %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="remove-all-from-cart-btn" style="padding: 5px 10px; background-color: #dc3545; color: #fff; border: none; cursor: pointer;">Remove</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div id="cart" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; background-color: #f9f9f9;">
+    <h2>Checkout</h2>
+    <ul id="cart-items" style="list-style-type: none; padding: 0;">
+      <!-- Cart items will be dynamically added here -->
+    </ul>
+   
+    <form id="checkout-form" action="{% url 'checkout' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="hidden" name="total_price" id="total_price_input" value="0">
+        <button type="submit" class="btn mb-2 fw-bold w-100 btn-danger" id="buy-now-btn">Proceed to Checkout</button>
+    </form>
+  </div>
+
+  <div class="clearfix"></div>
+
+</body>
+{% endblock %}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrocerEase - Making everyday essentials just a click away!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        :root {
+            --primary: #6B4EE6;
+            --primary-dark: #5740B3;
+            --secondary: #FF6B6B;
+            --tertiary: #4ECDC4;
+            --background: #F8F9FA;
+            --text: #2D3436;
+            --light-text: #636E72;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+        }
+
+        /* Navbar Styles */
+        .nav2 {
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav2-left h1 {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        .nav2-left h1 span {
+            color: var(--secondary);
+        }
+
+        .nav2-left .tagline {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Search Form */
+        .search-form {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 2rem;
+            display: flex;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            border: 2px solid #E0E0E0;
+            border-radius: 25px 0 0 25px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-form input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .search-form button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0 25px 25px 0;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-form button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Auth and Cart Buttons */
+        .nav2-right {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .auth-button, .cart-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-button {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .auth-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .cart-button {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+
+        .cart-button:hover {
+            background-color: #FF5252;
+        }
+
+        /* Navigation Menu */
+        .nav3 {
+            background-color: var(--white);
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav3 ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .nav3 ul li a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav3 ul li a:hover {
+            color: var(--primary);
+            background-color: rgba(107, 78, 230, 0.1);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-left i {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .footer-right p {
+            opacity: 0.9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav2 {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .search-form {
+                margin: 1rem 0;
+                width: 100%;
+            }
+
+            .nav2-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav3 ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav2">
+            <div class="nav2-left">
+                <h1> <span>GrocerEase</span></h1>
+                <p class="tagline">Making everyday essentials just a click away!</p>
+            </div>
+
+            <form action="{% url 'search' %}" method="get" class="search-form">
+                <input type="text" placeholder="Search for gifts..." name="search" id="search">
+                <button type="submit">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+
+            <div class="nav2-right">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="auth-button">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'auth' %}" class="auth-button">
+                        <i class="fa fa-user"></i> Login/Register
+                    </a>
+                {% endif %}
+                <a href="{% url 'cart' %}" class="cart-button">
+                    <i class="fa fa-shopping-cart"></i> View Cart
+                </a>
+            </div>
+        </nav>
+
+        <nav class="nav3">
+            <ul>
+                <li><a href="{% url 'index' %}"><i class="fa fa-home"></i> Home</a></li>
+                <li><a href="{% url 'product' %}"><i class="fa fa-th-large"></i> Categories</a></li>
+                <li><a href="{% url 'help' %}"><i class="fa fa-question-circle"></i> Help</a></li>
+                <li><a href="{% url 'about' %}"><i class="fa fa-info-circle"></i> About us</a></li>
+                <li><a href="{% url 'userprofile' %}"><i class="fa fa-user-circle"></i> My Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+  <body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="filter-btns">
+                <h3 style="color: #333;">Categories</h3>
+                <div class="filter-btn-group">
+                    <a href="/product/ "> <button class="filter-btn active" data-filter="all">All</button> </a>
+
+                    {% for category in categories %}
+                      <a href="/product/?category={{ category.id }}" > <button class="filter-btn" data-filter="{{ category.id }}">{{ category.model_name }}</button> </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <div class="col-md-9">
+            <div class="mt-3" style="background-color: #f8f9fa; padding: 10px;">
+                <h3 style="color: #333;">For You</h3>
+            </div>
+            <!-- Add some gap here -->
+            <div style="margin-bottom: 20px;"></div>
+        </div>
+    </div>
+
+     <div class="container">
+            <div class="row flex-row"> <!-- Changed class to flex-row -->
+                {% for prod in products %}
+                <div class="col-lg-4 col-md-6 mb-4 product-card" data-category="{{ prod.category.id }}">
+                    <div class="bg-white p-2 shadow-md">
+                        <div class="text-center">
+                            <a href="detail.html">
+                                <img src="/{{ prod.image }}" alt="" class="product-image">
+                            </a>
+                        </div>
+                        <div class="detail p-2 product-detail">
+                            <h4>{{ prod.name | truncatechars:10 }}</h4>
+                            <h4>Rs {{ prod.price }}</h4> <!-- Added "Rs" prefix -->
+                            <div class="row pt-2">
+                                  <div class="col-md-6">
+        <form action="{% url 'checkout' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+
+        </form>
+          </div>
+                                <div class="col-md-6">
+                                    <form class="add-to-cart-form" data-product-id="{{ prod.id }}">
+                                        {% csrf_token %}
+                                        <button type="button" class="add-to-cart btn fw-bold w-100 btn-outline-danger">Add to Cart</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<style>
+
+    .categories-section { background-color: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+
+   .filter-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Adjust as needed */
+}
+
+.filter-btn {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #0056b3;
+}
+
+.flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* or any other alignment you prefer */
+}
+
+.product-card {
+    flex: 0 0 calc(30% - 30px); /* Adjust as needed */
+    margin-bottom: 20px; /* Adjust as needed */
+}
+
+.product-image {
+    width: 90%; /* Ensure the image doesn't exceed the container width */
+    max-height: 150px; /* Allow the height to adjust dynamically based on the image's aspect ratio */
+    object-fit: contain; /* Fit the entire image within the container, maintaining aspect ratio */
+    margin-bottom: 10px; /* Add some bottom margin */
+}
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.add-to-cart').click(function(e) {
+            e.preventDefault();
+            var productId = $(this).closest('.add-to-cart-form').data('product-id');
+
+            $.ajax({
+                type: 'POST',
+                url: '/cart/add/' + productId + '/',
+                dataType: 'json',
+                beforeSend: function(xhr, settings) {
+                    var csrftoken = getCookie('csrftoken');
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                success: function(data) {
+                    console.log('Item added to cart successfully');
+                    // Optionally, update the cart count or show a success message
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.error('Error adding item to cart:', errorThrown);
+                    // Handle errors if any
+                }
+            });
+        });
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+
+ <footer class="footer" style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 20px;">
+    <div class="footer-left" style="display: flex; flex-direction: column; align-items: center; margin-right: 20px;">
+        <div class="social-icons" style="margin-bottom: 10px;">
+            <i class="fa fa-facebook" style="margin: 0 10px;"></i>
+            <i class="fa fa-whatsapp" style="margin: 0 10px;"></i>
+            <i class="fa fa-instagram" style="margin: 0 10px;"></i>
+        </div>
+        <div style="margin: 5px 0;"><i class="fa fa-phone"></i> +977 9840259838</div>
+        <div style="margin: 5px 0;"><i class="fa fa-envelope"></i> GrocerEase.com</div>
+    </div>
+    <div class="footer-right" style="display: flex; justify-content: center; align-items: center;">
+        <p style="margin: 0;">&copy; 2025 GrocerEase. All rights reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

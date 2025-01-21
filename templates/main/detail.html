@@ -1,0 +1,51 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+    <!-- <link rel="stylesheet" href={% static 'style.css' %}"> Include your CSS file -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Include your CSS file -->
+</head>
+<body>
+    <div class="product-detail-container">
+        <div class="product-image">
+            <!-- Image of the product -->
+            <img src="{% static '%}" alt="Product Image">  ..........
+        </div>
+        <div class="product-description">
+            <!-- Description of the product -->
+            <h2>Product Name</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae justo non turpis luctus lacinia eget eu quam. Ut eget ullamcorper velit, id commodo odio.</p>
+            <p>Price: $XX.XX</p>
+            <!-- Additional details about the product -->
+            <h3>Additional Details</h3>
+            <ul>
+                <li>Feature 1: Value</li>
+                <li>Feature 2: Value</li>
+                <li>Feature 3: Value</li>
+                <!-- Add more details as needed -->
+            </ul>
+        </div>
+        <div class="similar-products">
+           
+            <h3>Similar Products</h3>
+            <div class="scrollable-products">
+                <!-- Scrollable list of other images -->
+                <div class="product-thumbnail">
+                    <img src="/path/to/product-image1.jpg" alt="Product Image 1">
+                </div>
+                <div class="product-thumbnail">
+                    <img src="/path/to/product-image2.jpg" alt="Product Image 2">
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

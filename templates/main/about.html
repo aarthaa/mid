@@ -1,0 +1,67 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+{% load static %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+       
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 50px;
+        text-align: center;
+    }
+
+    .content {
+        max-width: 800px;
+        margin-bottom: 30px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    
+        margin-bottom: 20px;
+    }
+
+    .illustration {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+    }
+
+    .illustration img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="container">
+    <div class="content">
+        <h1>About Us</h1>
+        <p>Welcome to <strong>Grocerease</strong>, your go-to online store for all your household essentials! We are a single-vendor platform dedicated to bringing you a wide range of everyday products, including groceries, household items, and cosmetics. At Grocerease, we understand the importance of convenience, which is why we've created an easy-to-use online shopping experience, allowing you to shop for the things you need, all in one place.</p>
+        <p>We offer multiple payment options, including secure online payments and cash on delivery, so you can choose the method that works best for you. Grocerease is here to make your shopping experience as easy and enjoyable as possible.</p>
+        <p>Thank you for choosing Grocerease, where convenience meets quality!</p>
+    </div>
+    <div class="illustration">
+        <img src="{% static 'images/about us.webp' %}" alt="Illustration">
+    </div>
+</div>
+
+{% endblock %}

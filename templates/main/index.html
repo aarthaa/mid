@@ -1,0 +1,283 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+{% load static %}
+
+<style>
+    /* Filter Styles */
+    .filter-container {
+        background-color: var(--white);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .filter-container label {
+        display: block;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .filter-container select,
+    .filter-container input[type="number"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #E0E0E0;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-container button {
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-weight: 600;
+    }
+
+    .filter-container button:hover {
+        background-color: var(--primary-dark);
+    }
+
+    /* Slider Styles */
+    .slider-container {
+        background-color: var(--white);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        position: relative;
+        height: 400px;
+    }
+
+    .slider {
+        display: flex;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+
+    .slider img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .prev-slide,
+    .next-slide {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        z-index: 10;
+    }
+
+    .prev-slide {
+        left: 1rem;
+    }
+
+    .next-slide {
+        right: 1rem;
+    }
+
+    /* Product Grid */
+    .section-title {
+        color: var(--text);
+        margin: 2rem 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .product-card {
+        background-color: var(--white);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-detail {
+        padding: 1rem;
+    }
+
+    .product-detail h4 {
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .product-price {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-weight: 600;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-buy {
+        background-color: var(--secondary);
+        color: var(--white);
+        border: none;
+    }
+
+    .btn-cart {
+        background-color: transparent;
+        color: var(--secondary);
+        border: 2px solid var(--secondary);
+    }
+</style>
+
+<div class="page-content">
+    <!-- Filter Section -->
+    <div class="filter-container">
+        <label for="category-filter">Filter by Category:</label>
+        <select id="category-filter">
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="home">Home & Kitchen</option>
+        </select>
+
+        <label for="min-price">Price Range:</label>
+        <input type="number" id="min-price" placeholder="Min Price">
+        <input type="number" id="max-price" placeholder="Max Price">
+
+        <button id="apply-filter">Apply Filter</button>
+    </div>
+
+    <!-- Slider Section -->
+    <div class="slider-container">
+        <div class="slider">
+            <img src="{% static 'images/sss.jpeg' %}" alt="Slide 1">
+            <img src="{% static 'images/img.jpg' %}" alt="Slide 2">
+        </div>
+        <button class="prev-slide">Previous</button>
+        <button class="next-slide">Next</button>
+    </div>
+
+    <!-- Products Section -->
+    <h2 class="section-title">Just For You</h2>
+    <div class="product-grid">
+        {% for prod in products %}
+        <div class="product-card" data-category="{{ prod.category.id }}">
+            <img src="/{{ prod.image }}" alt="{{ prod.name }}" class="product-image">
+            <div class="product-detail">
+                <h4>{{ prod.name | truncatechars:20 }}</h4>
+                <div class="product-price">Rs. {{ prod.price }}</div>
+                <div class="button-group">
+                    <form action="{% url 'cart' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ prod.id }}">
+                        <button type="submit" class="btn btn-buy">Buy Now</button>
+                    </form>
+                    <form class="add-to-cart-form" data-product-id="{{ prod.id }}">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-cart add-to-cart">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Filter functionality
+        $('#apply-filter').click(function() {
+            var category = $('#category-filter').val();
+            var minPrice = $('#min-price').val();
+            var maxPrice = $('#max-price').val();
+            
+            $.ajax({
+                url: '/products/filter/',
+                type: 'GET',
+                data: {
+                    category: category,
+                    minPrice: minPrice,
+                    maxPrice: maxPrice
+                },
+                success: function(data) {
+                    $('#product-list').html(data);
+                }
+            });
+        });
+
+        // Slider functionality
+        var slideIndex = 0;
+        function showSlide(n) {
+            var slides = $(".slider img");
+            if (n >= slides.length) {slideIndex = 0}
+            if (n < 0) {slideIndex = slides.length - 1}
+            $(".slider").css("transform", "translateX(" + (-100 * slideIndex) + "%)");
+        }
+
+        $(".prev-slide").click(function() {
+            showSlide(--slideIndex);
+        });
+
+        $(".next-slide").click(function() {
+            showSlide(++slideIndex);
+        });
+
+        // Add to cart functionality
+        $('.add-to-cart').click(function(e) {
+            e.preventDefault();
+            var productId = $(this).closest('.add-to-cart-form').data('product-id');
+            
+            $.ajax({
+                type: 'POST',
+                url: '/cart/add/' + productId + '/',
+                headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+                success: function(data) {
+                    alert('Item added to cart successfully');
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    alert('Error adding item to cart');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
