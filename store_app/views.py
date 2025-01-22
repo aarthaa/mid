@@ -282,13 +282,26 @@ def checkout(request):
     # Render checkout page if request method is not POST
     return render(request, 'register/checkout.html')
 
-
 @login_required
 def place_order(request):
-    # If you want this to handle order placement in some way
-    cart = Cart(request)
-    cart_items = cart.get_items()  # Retrieve cart items
-    total_price = sum(item['product'].price * item['quantity'] for item in cart_items)
+    # Retrieve cart from the session
+    cart = request.session.get('cart', {})
+    
+    if not cart:
+        return HttpResponse("Your cart is empty.", status=400)
+
+    total_price = 0
+    cart_items = []
+
+    for product_id, details in cart.items():
+        try:
+            product = Product.objects.get(id=product_id)
+            quantity = details['quantity']
+            price = product.price
+            total_price += price * quantity
+            cart_items.append({'product': product, 'quantity': quantity, 'price': price})
+        except Product.DoesNotExist:
+            continue  # Skip any invalid product IDs in the cart
 
     # Create an order
     order = Order.objects.create(
@@ -303,11 +316,12 @@ def place_order(request):
             order=order,
             product=item['product'],
             quantity=item['quantity'],
-            price=item['product'].price
+            price=item['price']
         )
 
     # Clear the cart
-    cart.clear()
+    request.session['cart'] = {}
+    request.session.modified = True
 
     return HttpResponse("Order placed successfully!")
 

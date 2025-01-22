@@ -101,6 +101,7 @@ class Order(models.Model):
     email = models.EmailField(max_length=100,default='')
     amount = models.CharField(max_length=20, default=(0.0))   # Add max_length attribute here
 
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(default=timezone.now)
