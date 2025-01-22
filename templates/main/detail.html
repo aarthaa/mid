@@ -150,7 +150,7 @@
             <div class="button-group">
                 <form action="{% url 'cart' %}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="product_id" value="{{ prod.id }}">
                     <button type="submit" class="btn btn-buy">Buy Now</button>
                 </form>
                 <form class="add-to-cart-form" data-product-id="{{ product.id }}">
@@ -193,6 +193,23 @@ document.addEventListener('DOMContentLoaded', function() {
         thumb.addEventListener('click', function() {
             mainImage.src = this.src;
         });
+    });
+});
+  // Add to cart functionality
+  $('.add-to-cart').click(function(e) {
+    e.preventDefault();
+    var productId = $(this).closest('.add-to-cart-form').data('product-id');
+    
+    $.ajax({
+        type: 'POST',
+        url: '/cart/add/' + productId + '/',
+        headers: {'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()},
+        success: function(data) {
+            alert('Item added to cart successfully');
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            alert('Error adding item to cart');
+        }
     });
 });
 </script>
