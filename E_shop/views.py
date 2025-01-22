@@ -283,6 +283,7 @@ def checkout(request):
     # Render checkout page if request method is not POST
     return render(request, 'register/checkout.html')
 
+import login_required
 
 @login_required
 def place_order(request):
@@ -290,6 +291,9 @@ def place_order(request):
     cart = Cart(request)
     cart_items = cart.get_items()  # Retrieve cart items
     total_price = sum(item['product'].price * item['quantity'] for item in cart_items)
+
+    # Get user's last name
+    user_last_name = request.user.last_name
 
     # Create an order
     order = Order.objects.create(
@@ -300,18 +304,20 @@ def place_order(request):
 
     # Create OrderItems for each product
     for item in cart_items:
+        product_name = item['product'].name  # Assuming your Product model has a 'name' field
         OrderItem.objects.create(
             order=order,
             product=item['product'],
             quantity=item['quantity'],
-            price=item['product'].price
+            price=item['product'].price,
+            user_last_name=user_last_name,  # Add user's last name
+            product_name=product_name      # Add product name
         )
 
     # Clear the cart
     cart.clear()
 
     return HttpResponse("Order placed successfully!")
-
 
 
 from django.shortcuts import get_object_or_404, render

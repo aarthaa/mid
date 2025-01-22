@@ -196,32 +196,36 @@
         <button class="next-slide">Next</button>
     </div>
 
-<!-- Products Section -->
+    <!-- Products Section -->
+    <h2 class="section-title">Just For You</h2>
+   <!-- Products Section -->
 <h2 class="section-title">Just For You</h2>
 <div class="product-grid">
     {% for prod in products %}
-    <a href="{% url 'product_detail' prod.id %}" class="product-link">
-        <div class="product-card" data-category="{{ prod.category.id }}">
+    <div class="product-card" data-category="{{ prod.category.id }}">
+        <a href="{% url 'product_detail' prod.id %}" class="product-link">
             <img src="/{{ prod.image }}" alt="{{ prod.name }}" class="product-image">
             <div class="product-detail">
                 <h4>{{ prod.name | truncatechars:20 }}</h4>
                 <div class="product-price">Rs. {{ prod.price }}</div>
-                <div class="button-group">
-                    <form action="{% url 'cart' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="product_id" value="{{ prod.id }}">
-                        <button type="submit" class="btn btn-buy">Buy Now</button>
-                    </form>
-                    <form class="add-to-cart-form" data-product-id="{{ product.id }}">
-                        {% csrf_token %}
-                        <button type="button" class="btn btn-cart add-to-cart">Add to Cart</button>
-                    </form>
-                </div>
             </div>
+        </a>
+        <div class="button-group">
+            <form action="{% url 'cart' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ prod.id }}">
+                <button type="submit" class="btn btn-buy">Buy Now</button>
+            </form>
+            <form class="add-to-cart-form" data-product-id="{{ prod.id }}">
+                {% csrf_token %}
+                <button type="button" class="btn btn-cart add-to-cart">Add to Cart</button>
+            </form>
         </div>
-    </a>
+    </div>
     {% endfor %}
 </div>
+
+
 
 <script>
     $(document).ready(function() {

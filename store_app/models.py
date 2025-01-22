@@ -113,16 +113,19 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.user.username}"
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    images = models.ImageField(upload_to="Product_images/Order_Img",default='')
-    quantity = models.CharField(max_length=20, default=0)
-    price = models.CharField(max_length=20, default='0')
-    total = models.CharField(max_length=10000, default='0')
-
+    images = models.ImageField(upload_to="Product_images/Order_Img", default='', blank=True)
+    quantity = models.CharField(max_length=20, default='0')  # Consider using IntegerField
+    price = models.CharField(max_length=20, default='0')  # Consider using DecimalField
+    total = models.CharField(max_length=100, default='0')  # Consider using DecimalField
 
     def __str__(self):
-       return self.order.user.username
+        return f"{self.order.user.username} - {self.product.name}"
+
+    def calculate_total(self):
+        """Calculate the total price for this order item."""
+        return float(self.price) * int(self.quantity)
 
 class Delivery(models.Model):
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
