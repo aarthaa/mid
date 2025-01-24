@@ -166,38 +166,36 @@
         color: var(--secondary);
         border: 2px solid var(--secondary);
     }
+    .slide-image {
+        width: 100%; /* Adjust to fit container width */
+        height: auto; /* Maintain aspect ratio */
+        object-fit: cover; /* Ensure the image covers the space */
+        
+    }
+    
+    
+    
 </style>
 
 <div class="page-content">
     <!-- Filter Section -->
-    <div class="filter-container">
-        <label for="category-filter">Filter by Category:</label>
-        <select id="category-filter">
-            <option value="">All Categories</option>
-            <option value="electronics">Electronics</option>
-            <option value="clothing">Clothing</option>
-            <option value="home">Home & Kitchen</option>
-        </select>
-
-        <label for="min-price">Price Range:</label>
-        <input type="number" id="min-price" placeholder="Min Price">
-        <input type="number" id="max-price" placeholder="Max Price">
-
-        <button id="apply-filter">Apply Filter</button>
-    </div>
+    
+    
 
     <!-- Slider Section -->
     <div class="slider-container">
         <div class="slider">
-            <img src="{% static 'images/sss.jpeg' %}" alt="Slide 1">
-            <img src="{% static 'images/img.jpg' %}" alt="Slide 2">
+            
+
+            <img src="{% static 'images/Groceries.jpg' %}" alt="Slide 1" class='slide-image' widt=>
+            <img src="{% static 'images/Gro.jpg' %}" alt="Slide 2" class='slide-image' width=auto>
+
         </div>
         <button class="prev-slide">Previous</button>
         <button class="next-slide">Next</button>
     </div>
 
-    <!-- Products Section -->
-    <h2 class="section-title">Just For You</h2>
+  
    <!-- Products Section -->
 <h2 class="section-title">Just For You</h2>
 <div class="product-grid">
