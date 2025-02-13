@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="width: 80%; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <h1 style="color: #4CAF50;">Order Successful!</h1>
+            <p>Your payment has been successfully processed. Your order has been placed.</p>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Total Price:</strong> NPR {{ order.total_price }}</p>
+            <p>Thank you for shopping with us. You will receive an email with your order details shortly.</p>
+
+            <a href="{% url 'home' %}" style="display: inline-block; padding: 10px 20px; text-decoration: none; background-color: #4CAF50; color: white; border-radius: 4px; margin-top: 20px;">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

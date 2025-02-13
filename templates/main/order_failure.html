@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Failed</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="width: 80%; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+            <h1 style="color: #F44336;">Order Failed!</h1>
+            <p>Unfortunately, your payment could not be processed. Please try again or contact support if the issue persists.</p>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Total Price:</strong> NPR {{ order.total_price }}</p>
+
+            <a href="{% url 'home' %}" style="display: inline-block; padding: 10px 20px; text-decoration: none; background-color: #4CAF50; color: white; border-radius: 4px; margin-top: 20px;">Back to Home</a>
+            <a href="{% url 'checkout' %}" style="display: inline-block; padding: 10px 20px; text-decoration: none; background-color: #f4f4f4; color: #333; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px;">Try Again</a>
+        </div>
+    </div>
+</body>
+</html>

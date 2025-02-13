@@ -2,27 +2,92 @@
 
 {% block content %}
 <body>
-  
   <style>
     /* Custom styles for the quantity input */
     .quantity-input {
-      width: 60px; /* Adjust width as needed */
-      height: 40px; /* Adjust height as needed */
-      background-color: lightgray; /* Set background color */
-      border: none;
+      width: 60px;
+      height: 40px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
       border-radius: 5px;
       text-align: center;
+      font-size: 16px;
     }
 
-    /* Positioning the cart on the right side */
+    /* Container for products */
     #products {
-      float: left;
-      width: 70%; /* Adjust as needed */
+      width: 70%;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background-color: #f8f9fa;
     }
 
+    /* Cart container */
     #cart {
-      float: right;
-      width: 30%; /* Adjust as needed */
+      width: 30%;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    /* Product card styling */
+    .product {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .product img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    /* Remove button styling */
+    .remove-all-from-cart-btn {
+      padding: 5px 12px;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .remove-all-from-cart-btn:hover {
+      background-color: #c82333;
+    }
+
+    /* Cart button styling */
+    .checkout-btn {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 18px;
+      transition: background-color 0.3s ease;
+    }
+
+    .checkout-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* List of cart items */
+    #cart-items {
+      list-style-type: none;
+      padding-left: 0;
+      margin-bottom: 20px;
+    }
+
+    #cart-items li {
+      padding: 8px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     /* Clear float */
@@ -33,39 +98,45 @@
     }
   </style>
 
-  <div id="products">
-    {% for key, value in request.session.cart.items %}
-    <div class="product" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; background-color: #f9f9f9;">
-      <h5>{{ value.name | truncatewords:10 }}</h5>
-      <img src="{{ value.image }}" width="120" height="100">
-      <p>Price: ₹{{ value.price }}</p>
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity_{{ key }}" name="quantity" min="1" value="1" class="quantity-input">
+  <div class="container my-5">
+    <div class="row">
+      <!-- Product Section -->
+      <div id="products" class="col-md-8">
+        <h3 class="text-primary mb-4">Your Products</h3>
+        {% for key, value in request.session.cart.items %}
+        <div class="product">
+          <h5 class="mb-2">{{ value.name | truncatewords:10 }}</h5>
+          <img src="{{ value.image }}" width="120" height="100" class="mb-3">
+          <p><strong>Price:</strong> ₹{{ value.price }}</p>
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity_{{ key }}" name="quantity" min="1" value="1" class="quantity-input">
 
-      <!-- Form for deletion -->
-      <form action="{% url 'remove-from-cart' key %}" method="post">
-        {% csrf_token %}
-        <button type="submit" class="remove-all-from-cart-btn" style="padding: 5px 10px; background-color: #dc3545; color: #fff; border: none; cursor: pointer;">Remove</button>
-      </form>
+          <!-- Remove from cart -->
+          <form action="{% url 'remove-from-cart' key %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="remove-all-from-cart-btn">Remove</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Cart Section -->
+      <div id="cart" class="col-md-4">
+        <h3 class="text-primary mb-4">Checkout</h3>
+        <ul id="cart-items">
+          <!-- Cart items will be dynamically added here -->
+        </ul>
+
+        <form id="checkout-form" action="{% url 'checkout' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+          <input type="hidden" name="total_price" id="total_price_input" value="0">
+          <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+        </form>
+      </div>
     </div>
-    {% endfor %}
-  </div>
-
-  <div id="cart" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; background-color: #f9f9f9;">
-    <h2>Checkout</h2>
-    <ul id="cart-items" style="list-style-type: none; padding: 0;">
-      <!-- Cart items will be dynamically added here -->
-    </ul>
-   
-    <form id="checkout-form" action="{% url 'checkout' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-        <input type="hidden" name="total_price" id="total_price_input" value="0">
-        <button type="submit" class="btn mb-2 fw-bold w-100 btn-danger" id="buy-now-btn">Proceed to Checkout</button>
-    </form>
   </div>
 
   <div class="clearfix"></div>
-
 </body>
 {% endblock %}

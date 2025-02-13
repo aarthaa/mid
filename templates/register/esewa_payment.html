@@ -1,0 +1,33 @@
+<!-- register/esewa_payment.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eSewa Payment Test</title>
+    <style>
+        .container { max-width: 500px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn-success { background: #60B246; color: white; }
+        .btn-danger { background: #DC3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>eSewa Payment Test</h2>
+        <p>Order ID: {{ order.id }}</p>
+        <p>Amount: Rs. {{ payment_data.amount }}</p>
+        <p>Transaction ID: {{ payment_data.transaction_uuid }}</p>
+        
+        <div>
+            <!-- Success Test -->
+            <a href="{% url 'esewa_success' %}?transaction_uuid={{ payment_data.transaction_uuid }}" class="btn btn-success">
+                Test Successful Payment
+            </a>
+            
+            <!-- Failure Test -->
+            <a href="{% url 'esewa_failure' %}?transaction_uuid={{ payment_data.transaction_uuid }}" class="btn btn-danger">
+                Test Failed Payment
+            </a>
+        </div>
+    </div>
+</body>
+</html>

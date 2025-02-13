@@ -62,7 +62,7 @@ class CartAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'product__name')
 
 # Payment admin customization
-class PaymentAdmin(admin.ModelAdmin):
+class ESEWATransactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'payment_method', 'payment_date')
     search_fields = ('payment_method',)
 
@@ -77,4 +77,6 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Delivery, DeliveryAdmin)
 admin.site.register(Wishlist, WishlistAdmin)
 admin.site.register(Cart, CartAdmin)
-admin.site.register(Payment, PaymentAdmin)
+admin.site.register(ESEWATransaction, ESEWATransactionAdmin)
+
+

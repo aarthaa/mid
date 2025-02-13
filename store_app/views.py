@@ -1,6 +1,10 @@
+
+
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from store_app.models import Product, Categorie
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout
@@ -19,11 +23,10 @@ def index(request):
     }
     return render(request, 'main/index.html', context)
 
+
 class AuthView(View):
     def get(self, request):
         return render(request, 'register/auth.html')
-
-
 
 
 def BASE(request):
@@ -43,11 +46,9 @@ def product(request):
     categories = Categorie.objects.all()
     CATID = request.GET.get('category')
     if CATID:
-        products =Product.objects.filter( categorie=CATID)
+        products = Product.objects.filter(categorie=CATID)
     else:
         products = Product.objects.all()
-
-
 
     context = {
         'products': products,
@@ -64,7 +65,6 @@ def register(request):
         email = request.POST.get('email')
         pass1 = request.POST.get('pass1')
         pass2 = request.POST.get('pass2')
-
 
         if User.objects.filter(email=email).exists():
             return render(request, 'register/auth.html', {'error_message': 'Email address is already in use'})
@@ -99,6 +99,7 @@ def user_login(request):
         else:
             return render(request, 'register/auth.html', {'error_message': 'Invalid login credentials'})
 
+
 def help_page(request):
     return render(request, 'main/help.html')
 
@@ -107,8 +108,10 @@ def user_logout(request):
     logout(request)
     return redirect('home')
 
+
 def detail_page(request):
     return render(request, 'main/detail.html')
+
 
 def about_page(request):
     return render(request, 'main/about.html')
@@ -208,7 +211,6 @@ def userprofile(request):
     return render(request, 'main/userprofile.html', context)
 
 
-
 def update_total_price(request):
     # Check if the request is a POST request and has the 'HTTP_X_REQUESTED_WITH' header set to 'XMLHttpRequest'
     if request.method == "POST" and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
@@ -221,8 +223,6 @@ def update_total_price(request):
         # Handle non-AJAX requests appropriately
         # For example, return a 404 Not Found response
         return JsonResponse({'error': 'Not Found'}, status=404)
-
-
 
 
 from django.shortcuts import render
@@ -240,53 +240,11 @@ def about(request):
     return render(request, 'main/about.html')
 
 
-
-@login_required
-def checkout(request):
-    if request.method == "POST":
-        try:
-            # Assuming the cart is stored in session
-            cart = Cart(request)
-            cart_items = cart.get_items()  # You would need to create a method `get_items()` that returns the items in the cart
-            total_price = sum(item['product'].price * item['quantity'] for item in cart_items)
-
-            # Create an Order
-            order = Order.objects.create(
-                user=request.user,
-                total_price=total_price,
-                status='Pending'  # Or whatever status you want
-            )
-
-            # Create OrderItems for each product in the cart
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    quantity=item['quantity'],
-                    price=item['product'].price
-                )
-
-            # Clear the cart after order placement (optional)
-            cart.clear()
-
-            # Redirect to success page with order details
-            return render(request, 'register/success.html', {
-                'thank': True,
-                'id': order.id,
-                'total_price': total_price
-            })
-
-        except Exception as e:
-            return render(request, 'register/checkout.html', {'error_message': str(e)})
-
-    # Render checkout page if request method is not POST
-    return render(request, 'register/checkout.html')
-
 @login_required
 def place_order(request):
     # Retrieve cart from the session
     cart = request.session.get('cart', {})
-    
+
     if not cart:
         return HttpResponse("Your cart is empty.", status=400)
 
@@ -326,27 +284,191 @@ def place_order(request):
     return HttpResponse("Order placed successfully!")
 
 
-
 from django.shortcuts import render, get_object_or_404
 from .models import Product, images, tag
+
 
 def product_detail(request, product_id):
     # Fetch the product by its ID
     product = get_object_or_404(Product, id=product_id)
-    
+
     # Fetch the related images and tags
     product_images = images.objects.filter(product=product)
     product_tags = tag.objects.filter(product=product)
-    
+
     # Fetch similar products from the same category
     similar_products = Product.objects.filter(categorie=product.categorie).exclude(id=product_id)[:4]
-    
+
     context = {
         'product': product,
         'product_images': product_images,
         'product_tags': product_tags,
         'similar_products': similar_products
     }
-    
+
     return render(request, 'main/detail.html', context)
 
+
+import hmac
+import hashlib
+import base64
+import uuid
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from .models import Order, ESEWATransaction
+from django.conf import settings
+import requests
+
+
+def generate_esewa_signature(total_amount, transaction_uuid, product_code):
+    """Simulate signature generation for local testing"""
+    # Just return a static signature for testing
+    return "test_signature_123"
+
+@login_required
+def esewa_payment(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+
+        # Generate transaction UUID
+        transaction_uuid = str(uuid.uuid4())
+
+        # Convert total price to integer
+        total_amount = int(float(order.total_price))
+
+        # Generate signature
+        signature = generate_esewa_signature(
+            total_amount=str(total_amount),
+            transaction_uuid=transaction_uuid,
+            product_code="EPAYTEST"
+        )
+
+        # Save transaction details
+        transaction = ESEWATransaction.objects.create(
+            user=request.user,  # Store user
+            order=order,
+            transaction_id=transaction_uuid,
+            amount=total_amount,
+            status='PENDING'
+        )
+
+        # Prepare sandbox payment data
+        esewa_payment_data = {
+            'amount': str(total_amount),
+            'tax_amount': "0",
+            'total_amount': str(total_amount),
+            'transaction_uuid': transaction_uuid,
+            'product_code': "EPAYTEST",
+            'product_service_charge': "0",
+            'product_delivery_charge': "0",
+            'success_url': request.build_absolute_uri('/esewa-success/'),
+            'failure_url': request.build_absolute_uri('/esewa-failure/'),
+            'signed_field_names': 'total_amount,transaction_uuid,product_code',
+            'signature': signature,
+            'username': request.user.username,  # Include username
+        }
+
+        return render(request, 'register/esewa_payment.html', {
+            'payment_data': esewa_payment_data,
+            'sandbox_mode': True
+        })
+
+    except Order.DoesNotExist:
+        return redirect('cart_detail')
+@csrf_exempt
+def esewa_success(request):
+    if request.method == 'GET':
+        try:
+            transaction_uuid = request.GET.get('transaction_uuid')
+            transaction = ESEWATransaction.objects.get(transaction_id=transaction_uuid)
+
+            # Mark transaction as successful
+            transaction.status = 'SUCCESS'
+            transaction.save()
+
+            # Update order status
+            order = transaction.order
+            order.payment_done = True
+            order.payment_method = 'eSewa'
+            order.status = "Confirmed"
+            order.save()
+
+            # Clear Cart
+            if 'cart' in request.session:
+                del request.session['cart']
+            request.session.modified = True
+
+            return render(request, 'register/success.html', {
+                'order': order,
+                'transaction': transaction,
+                'username': transaction.user.username if transaction.user else "Guest"  # Include username
+            })
+
+        except ESEWATransaction.DoesNotExist:
+            return redirect('cart_detail')
+
+    return redirect('cart_detail')
+
+@csrf_exempt
+def esewa_failure(request):
+    if request.method == 'GET':
+        try:
+            transaction_uuid = request.GET.get('transaction_uuid')
+            transaction = ESEWATransaction.objects.get(transaction_id=transaction_uuid)
+            transaction.status = 'FAILED'
+            transaction.save()
+
+            return render(request, 'register/payment_failed.html', {
+                'order': transaction.order,
+                'transaction': transaction
+            })
+        except ESEWATransaction.DoesNotExist:
+            pass
+
+    return redirect('cart_detail')
+@login_required
+def checkout(request):
+    if request.method == "POST":
+        try:
+            cart = request.session.get('cart', {})
+            if not cart:
+                return redirect('cart_detail')
+
+            cart_items = [
+                {
+                    'product_id': key,
+                    'name': value['name'],
+                    'price': float(value['price']),
+                    'quantity': int(value['quantity']),
+                    'image': value.get('image', '')
+                }
+                for key, value in cart.items()
+            ]
+
+            total_price = sum(item['price'] * item['quantity'] for item in cart_items)
+
+            # Create Order
+            order = Order.objects.create(
+                user=request.user,
+                total_price=total_price,
+                status='Pending'
+            )
+
+            # Create Order Items
+            for item in cart_items:
+                product = Product.objects.get(id=item['product_id'])
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=item['quantity'],
+                    price=item['price']
+                )
+
+            # After creating the order, redirect to checkout page
+            return render(request, 'register/checkout.html', {'order': order, 'cart_items': cart_items, 'total_price': total_price})
+
+        except Exception as e:
+            return render(request, 'register/checkout.html', {'error_message': str(e)})
+
+    return render(request, 'register/checkout.html')

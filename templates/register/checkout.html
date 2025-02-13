@@ -1,103 +1,153 @@
 {% extends 'main/base.html' %}
 {% block content %}
-<div style="display: flex;">
-    <div id="products" style="flex: 0.5;">
-        {% for key, value in request.session.cart.items %}
-        <div class="product" data-product-id="{{ key }}">
-            <h5>{{ value.name | truncatewords:10 }}</h5>
-            <img src="{{ value.image }}" width="90" height="80">
-            <p>Price: Rs{{ value.price }}</p>
-            <input type="number" class="quantity-input" min="1" value="1">
-            <button class="add-to-cart-btn" 
-                    data-id="{{ key }}"
-                    data-name="{{ value.name }}"
-                    data-price="{{ value.price }}"
-                    data-image="{{ value.image }}">Add</button>
-        </div>
-        {% endfor %}
-    </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-    <div class="container" style="flex: 0.5;">
-        <div id="cart">
-            <ul id="cart-items"></ul>
-            <p>Total: <span id="cart-total">Rs0.00</span></p>
+<div class="container my-4">
+    <div class="row">
+        <!-- Product List -->
+        <div class="col-md-6">
+            <h3 class="mb-3 text-primary">Products</h3>
+            <div class="row">
+                {% for key, value in request.session.cart.items %}
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-3">
+                        <img src="{{ value.image }}" class="card-img-top img-fluid p-2" alt="{{ value.name }}" style="height: 150px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ value.name | truncatewords:5 }}</h5>
+                            <p class="card-text text-success">Price: Rs {{ value.price }}</p>
+                            <div class="d-flex align-items-center">
+                                <input type="number" class="form-control me-2 quantity-input" min="1" value="{{ value.quantity }}" style="width: 60px;">
+                                <button class="btn btn-sm btn-primary add-to-cart-btn" 
+                                        data-id="{{ key }}"
+                                        data-name="{{ value.name }}"
+                                        data-price="{{ value.price }}"
+                                        data-image="{{ value.image }}">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <form id="place-order-form" action="{% url 'place_order' %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="cart_data" id="cart_data_input">
-            <input type="hidden" name="total_amount" id="total_amount_input">
-            <div class="form-group">
-                <label>Address</label>
-                <input type="text" name="address1" required>
+        <!-- Cart Section -->
+        <div class="col-md-6">
+            <h3 class="mb-3 text-primary">Your Cart</h3>
+            <div class="card shadow-sm p-3">
+                <ul id="cart-items" class="list-group mb-3"></ul>
+                <p class="fw-bold">Total: <span id="cart-total" class="text-success">Rs 0.00</span></p>
             </div>
-            <div class="form-group">
-                <label>City</label>
-                <input type="text" name="city" required>
+
+            <!-- Order Form -->
+            <div class="card shadow-sm p-3 mt-3">
+                <h5 class="text-center text-primary">Checkout</h5>
+                <form id="place-order-form" action="{% url 'place_order' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="cart_data" id="cart_data_input">
+                    <input type="hidden" name="total_amount" id="total_amount_input">
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" name="address1" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" name="phone" class="form-control" required>
+                    </div>
+
+                    <!-- Pay with eSewa button -->
+                    <div class="text-center mt-3">
+                        <a href="{% url 'esewa_payment' order.id %}" class="btn btn-success w-100">Pay with eSewa</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 mt-3">Place Order</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Phone</label>
-                <input type="tel" name="phone" required>
-            </div>
-            <button type="submit">Place Order</button>
-        </form>
+        </div>
     </div>
 </div>
 
-<script>
-let cart = [];
-let total = 0;
-
-function updateCart() {
-    const cartList = document.getElementById('cart-items');
-    cartList.innerHTML = '';
-    total = 0;
-
-    cart.forEach((item, index) => {
-        const li = document.createElement('li');
-        const subtotal = item.price * item.quantity;
-        total += subtotal;
-
-        li.innerHTML = `
-            ${item.name} - ${item.quantity} x Rs${item.price} = Rs${subtotal}
-            <button onclick="removeFromCart(${index})">Remove</button>
-        `;
-        cartList.appendChild(li);
-    });
-
-    document.getElementById('cart-total').textContent = `Rs${total}`;
-    document.getElementById('total_amount_input').value = total;
-    document.getElementById('cart_data_input').value = JSON.stringify(cart);
-}
-
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCart();
-}
-
-document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const product = btn.closest('.product');
-        const quantity = parseInt(product.querySelector('.quantity-input').value);
-        
-        const item = {
-            id: btn.dataset.id,
-            name: btn.dataset.name,
-            price: parseFloat(btn.dataset.price),
-            quantity: quantity,
-            image: btn.dataset.image
-        };
-        
-        cart.push(item);
-        updateCart();
-    });
-});
-
-document.getElementById('place-order-form').addEventListener('submit', function(e) {
-    if (cart.length === 0) {
-        e.preventDefault();
-        alert('Please add items to your cart');
+<style>
+    .card {
+        border-radius: 10px;
+        transition: transform 0.2s ease-in-out;
     }
-});
+    .card:hover {
+        transform: scale(1.03);
+    }
+    .add-to-cart-btn {
+        transition: background 0.3s ease-in-out;
+    }
+    .add-to-cart-btn:hover {
+        background-color: #0b5ed7;
+    }
+</style>
+
+<script>
+    let cart = [];
+    let total = 0;
+
+    function updateCart() {
+        const cartList = document.getElementById('cart-items');
+        cartList.innerHTML = '';
+        total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        cart.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            const subtotal = item.price * item.quantity;
+
+            li.innerHTML = `
+                <span>${item.name} - ${item.quantity} x Rs ${item.price} = Rs ${subtotal}</span>
+                <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">Remove</button>
+            `;
+            cartList.appendChild(li);
+        });
+
+        document.getElementById('cart-total').textContent = `Rs ${total.toFixed(2)}`;
+        document.getElementById('total_amount_input').value = total.toFixed(2);
+        document.getElementById('cart_data_input').value = JSON.stringify(cart);
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+    }
+
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const product = btn.closest('.card');
+            const quantity = parseInt(product.querySelector('.quantity-input').value);
+
+            const item = {
+                id: btn.dataset.id,
+                name: btn.dataset.name,
+                price: parseFloat(btn.dataset.price),
+                quantity: quantity,
+                image: btn.dataset.image
+            };
+
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+            if (existingItemIndex >= 0) {
+                cart[existingItemIndex].quantity += item.quantity;
+            } else {
+                cart.push(item);
+            }
+            updateCart();
+        });
+    });
+
+    document.getElementById('place-order-form').addEventListener('submit', function(e) {
+        if (cart.length === 0) {
+            e.preventDefault();
+            alert('Please add items to your cart');
+        }
+    });
 </script>
 {% endblock %}
