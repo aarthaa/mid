@@ -17,12 +17,12 @@
                             <p class="card-text text-success">Price: Rs {{ value.price }}</p>
                             <div class="d-flex align-items-center">
                                 <input type="number" class="form-control me-2 quantity-input" min="1" value="{{ value.quantity }}" style="width: 60px;">
-                                <button class="btn btn-sm btn-primary add-to-cart-btn" 
+                                <button class="btn btn-sm btn-primary place-order-btn"
                                         data-id="{{ key }}"
                                         data-name="{{ value.name }}"
                                         data-price="{{ value.price }}"
                                         data-image="{{ value.image }}">
-                                    Add to Cart
+                                    Place Order
                                 </button>
                             </div>
                         </div>
@@ -32,12 +32,14 @@
             </div>
         </div>
 
-        <!-- Cart Section -->
+        <!-- Order Summary Section -->
         <div class="col-md-6">
-            <h3 class="mb-3 text-primary">Your Cart</h3>
+            <h3 class="mb-3 text-primary">Order Summary</h3>
             <div class="card shadow-sm p-3">
-                <ul id="cart-items" class="list-group mb-3"></ul>
-                <p class="fw-bold">Total: <span id="cart-total" class="text-success">Rs 0.00</span></p>
+                <ul id="order-items" class="list-group mb-3">
+                  <!-- Order items will be dynamically added here -->
+                </ul>
+                <p class="fw-bold">Total: <span id="order-total" class="text-success">Rs 0.00</span></p>
             </div>
 
             <!-- Order Form -->
@@ -45,8 +47,7 @@
                 <h5 class="text-center text-primary">Checkout</h5>
                 <form id="place-order-form" action="{% url 'place_order' %}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="cart_data" id="cart_data_input">
-                    <input type="hidden" name="total_amount" id="total_amount_input">
+                    <input type="hidden" name="order_data" id="order_data_input">
 
                     <div class="mb-3">
                         <label class="form-label">Address</label>
@@ -66,7 +67,7 @@
                         <a href="{% url 'esewa_payment' order.id %}" class="btn btn-success w-100">Pay with eSewa</a>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 mt-3">Place Order</button>
+                    <button type="submit" class="btn btn-success w-100 mt-3">Cash on Delivery</button>
                 </form>
             </div>
         </div>
@@ -81,46 +82,39 @@
     .card:hover {
         transform: scale(1.03);
     }
-    .add-to-cart-btn {
+    .place-order-btn {
         transition: background 0.3s ease-in-out;
     }
-    .add-to-cart-btn:hover {
+    .place-order-btn:hover {
         background-color: #0b5ed7;
     }
 </style>
 
 <script>
-    let cart = [];
+    let order = []; // Renamed 'cart' to 'order'
     let total = 0;
 
-    function updateCart() {
-        const cartList = document.getElementById('cart-items');
-        cartList.innerHTML = '';
-        total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    function updateOrderSummary() {
+        const orderList = document.getElementById('order-items');
+        orderList.innerHTML = '';
+        total = order.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        cart.forEach((item, index) => {
+        order.forEach((item) => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             const subtotal = item.price * item.quantity;
 
             li.innerHTML = `
                 <span>${item.name} - ${item.quantity} x Rs ${item.price} = Rs ${subtotal}</span>
-                <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">Remove</button>
-            `;
-            cartList.appendChild(li);
+            `; // Removed the 'Remove' button
+            orderList.appendChild(li);
         });
 
-        document.getElementById('cart-total').textContent = `Rs ${total.toFixed(2)}`;
-        document.getElementById('total_amount_input').value = total.toFixed(2);
-        document.getElementById('cart_data_input').value = JSON.stringify(cart);
+        document.getElementById('order-total').textContent = `Rs ${total.toFixed(2)}`;
+        document.getElementById('order_data_input').value = JSON.stringify(order); //Send the order data
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        updateCart();
-    }
-
-    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    document.querySelectorAll('.place-order-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const product = btn.closest('.card');
             const quantity = parseInt(product.querySelector('.quantity-input').value);
@@ -133,20 +127,16 @@
                 image: btn.dataset.image
             };
 
-            const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
-            if (existingItemIndex >= 0) {
-                cart[existingItemIndex].quantity += item.quantity;
-            } else {
-                cart.push(item);
-            }
-            updateCart();
+            // Add to the order array
+            order.push(item);
+            updateOrderSummary();
         });
     });
 
     document.getElementById('place-order-form').addEventListener('submit', function(e) {
-        if (cart.length === 0) {
+        if (order.length === 0) {
             e.preventDefault();
-            alert('Please add items to your cart');
+            alert('Please select items to place order');
         }
     });
 </script>

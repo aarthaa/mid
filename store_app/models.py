@@ -27,30 +27,44 @@ class Filter_Price(models.Model):
     price = models.CharField(choices=Filter_Price_Choices, max_length=90)
 
 class Product(models.Model):
-    STOCK_CHOICES = (('IN STOCK', 'IN STOCK'), ('OUT OF STOCK', 'OUT OF STOCK'))
+    STOCK_CHOICES = (
+        ('IN STOCK', 'IN STOCK'),
+        ('OUT OF STOCK', 'OUT OF STOCK')
+    )
 
     unique_id = models.CharField(unique=True, max_length=200, null=True, blank=True)
     image = models.ImageField(upload_to='Product_images/img')
     name = models.CharField(max_length=60)
     price = models.FloatField()
     description = models.CharField(max_length=500)
-    stock = models.CharField(choices=STOCK_CHOICES, max_length=200)
-
+    quantity = models.PositiveIntegerField(default=0)  # ✅ New field for stock quantity
+    stock = models.CharField(choices=STOCK_CHOICES, max_length=200, editable=False)  # Make it non-editable in admin
     added_date = models.DateTimeField(default=timezone.now)
 
-    categorie = models.ForeignKey(Categorie, on_delete=models.CASCADE)
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    filter_price = models.ForeignKey(Filter_Price, on_delete=models.CASCADE)
+    categorie = models.ForeignKey('Categorie', on_delete=models.CASCADE)
+    color = models.ForeignKey('Color', on_delete=models.CASCADE)
+    filter_price = models.ForeignKey('Filter_Price', on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
+        # ✅ Auto-update stock status based on quantity
+        self.stock = 'IN STOCK' if self.quantity > 0 else 'OUT OF STOCK'
+
+        # Unique ID generation
         if not self.unique_id and self.added_date:
             if not self.id:
                 super().save(*args, **kwargs)
             self.unique_id = self.added_date.strftime('75%Y%m%d23') + str(self.id)
-            super().save(*args, **kwargs)
+
+        super().save(*args, **kwargs)
+
+    def restock(self, amount):
+        """✅ Restock the product by increasing quantity."""
+        self.quantity += amount
+        self.save()
 
     def __str__(self):
         return self.name
+
 
 class images(models.Model):
     image = models.ImageField(upload_to='Product_images/img')

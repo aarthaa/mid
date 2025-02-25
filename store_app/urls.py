@@ -1,9 +1,10 @@
 from django.urls import path, include
-from .import views
+from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import AuthView
 from .views import item_clear
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # Basic routes
@@ -22,7 +23,7 @@ urlpatterns = [
     path('userprofile/', views.userprofile, name='userprofile'),
     path('about/', views.about, name='aboutus'),
     path('checkout/', views.checkout, name='checkout'),
-    # Cart-related paths
+    
     path('cart_clear/', views.cart_clear, name='cart_clear'),
     path('place_order/', views.place_order, name='place_order'),
     path('cart/item_clear/<int:id>/', item_clear, name='item-clear'),
@@ -32,9 +33,17 @@ urlpatterns = [
     path('help/', views.help_page, name='help'),
     path('detail/', views.detail_page, name='detail'),
     path('about/', views.about_page, name='about'),
+    
+    path('esewa-payment/<int:order_id>/', views.esewa_payment, name='esewa_payment'),
+    path('esewa-success/', views.esewa_success, name='esewa_success'),
+    path('esewa-failure/', views.esewa_failure, name='esewa_failure'),
+    
 
-                  path('esewa-payment/<int:order_id>/', views.esewa_payment, name='esewa_payment'),
-                  path('esewa-success/', views.esewa_success, name='esewa_success'),
-                  path('esewa-failure/', views.esewa_failure, name='esewa_failure'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+
+
+            ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

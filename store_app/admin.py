@@ -5,12 +5,20 @@ from .models import *
 class TagTabularInline(admin.TabularInline):
     model = tag
 
-# Product admin customization
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'stock', 'added_date')
+class ProductAdmin(admin.ModelAdmin): 
+    list_display = ('name', 'price', 'stock', 'quantity', 'added_date')  # ✅ Display quantity field
     list_filter = ('stock', 'added_date')
     search_fields = ('name', 'description')
     inlines = [TagTabularInline]
+    actions = ['restock_products']  # ✅ Add restock action
+
+    def restock_products(self, request, queryset):
+        for product in queryset:
+            product.restock(amount=10)  # ✅ Restock selected products by 10 units
+        self.message_user(request, "Selected products have been restocked.")
+
+    restock_products.short_description = "Restock selected products by 10 units"
+
 
 # Inline class for OrderItem
 class OrderItemInline(admin.TabularInline):
@@ -65,6 +73,10 @@ class CartAdmin(admin.ModelAdmin):
 class ESEWATransactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'payment_method', 'payment_date')
     search_fields = ('payment_method',)
+
+from django.contrib import admin
+from .models import Product
+
 
 # Register models with their respective admin classes
 admin.site.register(Categorie)

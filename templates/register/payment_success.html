@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .status-icon {
+            font-size: 64px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .transaction-details {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .transaction-details p {
+            margin: 8px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .thank-you-message {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .order-status {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="status-icon">✅</div>
+            <h1>Payment Successful</h1>
+            <p>Your payment via eSewa has been processed successfully.</p>
+        </div>
+
+        <div class="order-status">
+            Your order #{{ order.id }} has been confirmed and is now being processed.
+        </div>
+
+        <div class="transaction-details">
+            <h3>Transaction Details</h3>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</p>
+            <p><strong>Amount Paid:</strong> Rs. {{ transaction.amount }}</p>
+            <p><strong>Payment Method:</strong> eSewa</p>
+            <p><strong>Date:</strong> {{ transaction.created_at|date:"F j, Y, g:i a" }}</p>
+        </div>
+
+        <p class="thank-you-message">Thank you for your purchase, {{ username }}!</p>
+
+        <div class="actions">
+            <a href="{% url 'orders' %}" class="btn">View Your Orders</a>
+        </div>
+    </div>
+</body>
+</html>
+Last edited just now
+
+

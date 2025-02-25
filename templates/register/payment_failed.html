@@ -1,10 +1,99 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Failed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .status-icon {
+            font-size: 64px;
+            color: #DC3545;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #DC3545;
+            margin-bottom: 10px;
+        }
+        .transaction-details {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .transaction-details p {
+            margin: 8px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #0069d9;
+        }
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Payment Failed</h1>
-    <p>Your payment was not successful. Please try again.</p>
-    <a href="{% url 'checkout' %}">Return to Checkout</a>
+    <div class="container">
+        <div class="header">
+            <div class="status-icon">❌</div>
+            <h1>Payment Failed</h1>
+            <p>We were unable to process your payment through eSewa.</p>
+        </div>
+
+        <div class="error-message">
+            {% if transaction.status_message %}
+                {{ transaction.status_message }}
+            {% else %}
+                Your payment was not successful. Please try again or choose another payment method.
+            {% endif %}
+        </div>
+
+        <div class="transaction-details">
+            <h3>Transaction Details</h3>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</p>
+            <p><strong>Amount:</strong> Rs. {{ transaction.amount }}</p>
+            <p><strong>Status:</strong> {{ transaction.status }}</p>
+            <p><strong>Date:</strong> {{ transaction.created_at|date:"F j, Y, g:i a" }}</p>
+        </div>
+
+        <div class="actions">
+            <a href="{% url 'checkout' %}" class="btn">Return to Checkout</a>
+        </div>
+    </div>
 </body>
 </html>

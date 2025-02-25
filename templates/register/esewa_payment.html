@@ -1,58 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <title>eSewa Payment Test</title>
-   <style>
-       .container { max-width: 800px; margin: 50px auto; padding: 20px; }
-       .form-section { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 4px; }
-       .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
-       .btn-success { background: #60B246; color: white; }
-       .btn-danger { background: #DC3545; color: white; }
-       .form-group { margin-bottom: 15px; }
-       .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-       .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-       .credentials-section { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-   </style>
+    <title>eSewa Payment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .payment-details {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #60B246;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #4e9e39;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-   <div class="container">
-       <!-- Test Credentials Section -->
-       <div class="form-section">
-           <h2>Test Credentials</h2>
-           <div class="form-group">
-               <label for="esewa_id">eSewa ID:</label>
-               <input type="text" id="esewa_id" value="9806800001" placeholder="e.g. 9806800001/2/3/4/5">
-           </div>
-           <div class="form-group">
-               <label for="password">Password:</label>
-               <input type="text" id="password" value="Nepal@123">
-           </div>
-           <div class="form-group">
-               <label for="mpin">MPIN (for application only):</label>
-               <input type="text" id="mpin" value="1122">
-           </div>
-           <div class="form-group">
-               <label for="merchant_code">Merchant ID/Service Code:</label>
-               <input type="text" id="merchant_code" value="EPAYTEST">
-           </div>
-           <div class="form-group">
-               <label for="token">Token:</label>
-               <input type="text" id="token" value="123456">
-           </div>
-       
-   
-
-
-       <!-- Test Response Handlers -->
-       <div class="form-section">
-           <h3>Test Response Handlers</h3>
-           <a href="{% url 'esewa_success' %}?transaction_uuid={{ payment_data.transaction_uuid|default:'TEST123' }}"
-              class="btn btn-success">Test Successful Payment</a>
-          
-           <a href="{% url 'esewa_failure' %}?transaction_uuid={{ payment_data.transaction_uuid|default:'TEST123' }}"
-              class="btn btn-danger">Test Failed Payment</a>
-       </div>
-   </div>
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        
+        <div class="payment-details">
+            <h3>Order Details</h3>
+            <p><strong>Transaction ID:</strong> {{ payment_data.transaction_uuid }}</p>
+            <p><strong>Amount:</strong> NPR {{ payment_data.total_amount }}</p>
+        </div>
+        
+        <p>You will be redirected to the eSewa payment gateway to complete your payment.</p>
+        
+        <form id="esewa-payment-form" method="POST" action="{{ sandbox_url }}">
+            {% for key, value in payment_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            
+            <button type="submit" class="btn">Pay with eSewa</button>
+        </form>
+        
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">
+            Note: You will be redirected to the eSewa sandbox environment. For testing, use the credentials:
+            <br>eSewa ID: 9806800001
+            <br>Password: Nepal@123
+        </p>
+    </div>
+    
+    <script>
+        // Auto-submit form option (uncomment if you want the form to submit automatically)
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.getElementById('esewa-payment-form').submit();
+            }, 2000);
+        });
+        */
+    </script>
 </body>
 </html>
-
