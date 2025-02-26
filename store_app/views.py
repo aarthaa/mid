@@ -315,11 +315,7 @@ def place_order(request):
             )
 
         # Return the order_id in the response
-        return JsonResponse({
-            "success": True,
-            "order_id": order.id,
-            "total_price": total_price
-        }, status=200)
+        return JsonResponse({"success": True, "message": f"Order placed successfully! Total Price: Rs {total_price:.2f}", "order_id": order.id}, status=200)
     else:
         return JsonResponse({"error": "Invalid request method."}, status=405)
 

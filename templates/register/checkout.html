@@ -5,8 +5,32 @@
 />
 
 <div class="container my-4">
+  <!-- Toast for success/error messages -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+    <div
+      id="orderMessageToast"
+      class="toast hide"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="toast-header" id="toast-header">
+        <strong class="me-auto" id="toast-title">Order Status</strong>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="toast-body" id="toast-message">
+        <!-- Message will be inserted here -->
+      </div>
+    </div>
+  </div>
+
   <div class="row">
-    <!-- Product Lfist -->
+    <!-- Product List -->
     <div class="col-md-6">
       <h3 class="mb-3 text-primary">Products</h3>
       <div class="row">
@@ -117,7 +141,20 @@
   .place-order-btn:hover {
     background-color: #0b5ed7;
   }
+  #orderMessageToast {
+    min-width: 250px;
+  }
+  .toast-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+  .toast-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+  }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
   let order = []; // Renamed 'cart' to 'order'
@@ -146,6 +183,30 @@
     document.getElementById("order_data_input").value = JSON.stringify(order); //Send the order data
   }
 
+  // Function to show toast message
+  function showToast(message, isSuccess = true) {
+    const toastEl = document.getElementById("orderMessageToast");
+    const toastMessage = document.getElementById("toast-message");
+    const toastHeader = document.getElementById("toast-header");
+    const toastTitle = document.getElementById("toast-title");
+
+    // Set message and styling
+    toastMessage.textContent = message;
+    if (isSuccess) {
+      toastHeader.classList.remove("bg-danger", "text-white");
+      toastHeader.classList.add("bg-success", "text-white");
+      toastTitle.textContent = "Success";
+    } else {
+      toastHeader.classList.remove("bg-success", "text-white");
+      toastHeader.classList.add("bg-danger", "text-white");
+      toastTitle.textContent = "Error";
+    }
+
+    // Show toast using Bootstrap
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+  }
+
   document.querySelectorAll(".place-order-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const product = btn.closest(".card");
@@ -170,12 +231,51 @@
     .addEventListener("submit", function (e) {
       if (order.length === 0) {
         e.preventDefault();
-        alert("Please select items to place order");
+        showToast("Please select items to place order", false);
+        return;
       }
+
+      e.preventDefault(); // Prevent default form submission
+
+      // Prepare form data
+      const formData = new FormData(this);
+
+      // Send AJAX request to place the order
+      fetch("{% url 'place_order' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            showToast(data.message || "Order placed successfully!", true);
+            // Optional: Clear order after successful placement
+            order = [];
+            updateOrderSummary();
+            // Optional: Reset form
+            document.getElementById("place-order-form").reset();
+          } else {
+            showToast(data.message || "Order placement failed.", false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showToast("There was an error placing the order.", false);
+        });
     });
+
   document
     .getElementById("pay-with-esewa-btn")
     .addEventListener("click", function () {
+      // Check if order is empty
+      if (order.length === 0) {
+        showToast("Please select items to place order", false);
+        return;
+      }
+
       // Populate order data before sending
       document.getElementById("order_data_input").value = JSON.stringify(order);
 
@@ -199,12 +299,12 @@
               orderId
             );
           } else {
-            alert("Order placement failed, please try again.");
+            showToast(data.message || "Order placement failed.", false);
           }
         })
         .catch((error) => {
           console.error("Error:", error);
-          alert("There was an error placing the order.");
+          showToast("There was an error placing the order.", false);
         });
     });
 </script>
