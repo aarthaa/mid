@@ -150,11 +150,6 @@
             
             {% if product.stock == 'IN STOCK' %}
             <div class="button-group">
-                <form action="{% url 'cart' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="product_id" value="{{ prod.id }}">
-                    <button type="submit" class="btn btn-buy">Buy Now</button>
-                </form>
                 <form class="add-to-cart-form" data-product-id="{{ product.id }}">
                     {% csrf_token %}
                     <button type="button" class="btn btn-cart add-to-cart">Add to Cart</button>
