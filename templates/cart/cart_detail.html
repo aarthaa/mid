@@ -122,7 +122,7 @@
 
       <!-- Cart Section -->
       <div id="cart" class="col-md-4">
-        <h3 class="text-primary mb-4">Checkout</h3>
+        <h3 class="text-primary mb-4"> Click To Finalize Your Order</h3>
         <ul id="cart-items">
           <!-- Cart items will be dynamically added here -->
         </ul>
@@ -131,7 +131,7 @@
           {% csrf_token %}
           <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
           <input type="hidden" name="total_price" id="total_price_input" value="0">
-          <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+          <button type="submit" class="checkout-btn"> Order place</button>
         </form>
       </div>
     </div>
