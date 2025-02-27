@@ -172,9 +172,21 @@
       const subtotal = item.price * item.quantity;
 
       li.innerHTML = `
-                <span>${item.name} - ${item.quantity} x Rs ${item.price} = Rs ${subtotal}</span>
-            `; // Removed the 'Remove' button
+        <span>${item.name} - ${item.quantity} x Rs ${item.price} = Rs ${subtotal}</span>
+        <button type="button" class="btn btn-sm btn-danger remove-item" data-id="${item.id}">
+          Remove
+        </button>
+    `;
       orderList.appendChild(li);
+    });
+
+    // Add event listeners to remove buttons
+    document.querySelectorAll(".remove-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const itemId = btn.dataset.id;
+        order = order.filter((item) => item.id !== itemId);
+        updateOrderSummary();
+      });
     });
 
     document.getElementById("order-total").textContent = `Rs ${total.toFixed(
@@ -212,16 +224,33 @@
       const product = btn.closest(".card");
       const quantity = parseInt(product.querySelector(".quantity-input").value);
 
-      const item = {
-        id: btn.dataset.id,
-        name: btn.dataset.name,
-        price: parseFloat(btn.dataset.price),
-        quantity: quantity,
-        image: btn.dataset.image,
-      };
+      if (quantity <= 0) {
+        showToast("Please enter a valid quantity", false);
+        return;
+      }
 
-      // Add to the order array
-      order.push(item);
+      const itemId = btn.dataset.id;
+
+      // Check if the item already exists in the order
+      const existingItemIndex = order.findIndex((item) => item.id === itemId);
+
+      if (existingItemIndex !== -1) {
+        // Update quantity if item already exists
+        order[existingItemIndex].quantity += quantity;
+        showToast(`Updated ${btn.dataset.name} quantity in your order`, true);
+      } else {
+        // Add new item to the order array
+        const item = {
+          id: itemId,
+          name: btn.dataset.name,
+          price: parseFloat(btn.dataset.price),
+          quantity: quantity,
+          image: btn.dataset.image,
+        };
+        order.push(item);
+        showToast(`Added ${btn.dataset.name} to your order`, true);
+      }
+
       updateOrderSummary();
     });
   });
@@ -241,7 +270,7 @@
       const formData = new FormData(this);
 
       // Send AJAX request to place the order
-      fetch("{% url 'place_order' %}", {
+      fetch(this.action, {
         method: "POST",
         body: formData,
         headers: {
@@ -252,13 +281,13 @@
         .then((data) => {
           if (data.success) {
             showToast(data.message || "Order placed successfully!", true);
-            // Optional: Clear order after successful placement
+            // Clear order after successful placement
             order = [];
             updateOrderSummary();
-            // Optional: Reset form
+            // Reset form
             document.getElementById("place-order-form").reset();
           } else {
-            showToast(data.message || "Order placement failed.", false);
+            showToast(data.error || "Order placement failed.", false);
           }
         })
         .catch((error) => {
@@ -285,21 +314,21 @@
       );
 
       // Send AJAX request to place the order
-      fetch("{% url 'place_order' %}", {
+      fetch(document.getElementById("place-order-form").action, {
         method: "POST",
         body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
             // If order is successfully placed, redirect to eSewa payment
             const orderId = data.order_id; // Assuming the response contains the order ID
-            window.location.href = `{% url 'esewa_payment' 0 %}`.replace(
-              "0",
-              orderId
-            );
+            window.location.href = `/esewa-payment/${orderId}/`;
           } else {
-            showToast(data.message || "Order placement failed.", false);
+            showToast(data.error || "Order placement failed.", false);
           }
         })
         .catch((error) => {

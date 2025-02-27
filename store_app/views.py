@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 from django.http import JsonResponse
 from store_app.models import Product, Categorie
 from django.contrib.auth.models import User
@@ -272,52 +273,58 @@ def about(request):
 @login_required
 def place_order(request):
     if request.method == "POST":
-        # Get the order data from the request
         order_data_json = request.POST.get('order_data')
 
-        # If order data is empty, return an error message
         if not order_data_json:
             return JsonResponse({"error": "No items selected for the order."}, status=400)
 
-        # Deserialize the order data from JSON
         order_data = json.loads(order_data_json)
 
         total_price = 0
         cart_items = []
 
-        # Loop through the order data to calculate the total price and prepare order items
         for item in order_data:
             try:
                 product = Product.objects.get(id=item['id'])
                 quantity = item['quantity']
-                # Use product.price, not item['price'] from the frontend!
+
+                if product.quantity < quantity:
+                    return JsonResponse({"error": f"Not enough stock for {product.name}."}, status=400)
+
                 price = product.price
                 total_price += price * quantity
                 cart_items.append(
                     {'product': product, 'quantity': quantity, 'price': price})
+
             except Product.DoesNotExist:
                 return JsonResponse({"error": f"Product with id {item['id']} not found."}, status=400)
 
-        # Create an order
+        # Create an order and reduce stock
         order = Order.objects.create(
             user=request.user,
             total_price=total_price,
             status='Pending'
         )
 
-        # Create OrderItems for each product
+        # Reduce stock and create OrderItems
         for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item['product'],
-                quantity=item['quantity'],
-                price=item['price']
-            )
+            try:
+                # Call the reduce_stock method to handle stock before saving the order item
+                item['product'].reduce_stock(item['quantity'])
 
-        # Return the order_id in the response
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    quantity=item['quantity'],
+                    price=item['price']
+                )
+
+            except ValidationError as e:
+                return JsonResponse({"error": str(e)}, status=400)
+
         return JsonResponse({"success": True, "message": f"Order placed successfully! Total Price: Rs {total_price:.2f}", "order_id": order.id}, status=200)
-    else:
-        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
 def product_detail(request, product_id):
@@ -437,6 +444,7 @@ print(generate_esewa_signature("100", "123456789", "TEST_PRODUCT"))
 @login_required
 def esewa_payment(request, order_id):
     try:
+        print("in")
         order = Order.objects.get(id=order_id, user=request.user)
 
         # Generate transaction UUID

@@ -1,23 +1,38 @@
+from .models import Product
 from django.contrib import admin
 from .models import *
 
 # Inline class for tags
+
+
 class TagTabularInline(admin.TabularInline):
     model = tag
 
-class ProductAdmin(admin.ModelAdmin): 
-    list_display = ('name', 'price', 'stock', 'quantity', 'added_date')  # ✅ Display quantity field
+
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'stock', 'quantity',
+                    'added_date')  # ✅ Display quantity field
     list_filter = ('stock', 'added_date')
     search_fields = ('name', 'description')
     inlines = [TagTabularInline]
-    actions = ['restock_products']  # ✅ Add restock action
+    # ✅ Add delete action
+    actions = ['restock_products', 'delete_selected_products']
 
     def restock_products(self, request, queryset):
+        """✅ Restock selected products by 10 units."""
         for product in queryset:
-            product.restock(amount=10)  # ✅ Restock selected products by 10 units
+            product.restock(amount=10)
         self.message_user(request, "Selected products have been restocked.")
 
     restock_products.short_description = "Restock selected products by 10 units"
+
+    def delete_selected_products(self, request, queryset):
+        """✅ Delete selected products from the database."""
+        count = queryset.count()
+        queryset.delete()
+        self.message_user(request, f"{count} products have been deleted.")
+
+    delete_selected_products.short_description = "Delete selected products"
 
 
 # Inline class for OrderItem
@@ -25,10 +40,14 @@ class OrderItemInline(admin.TabularInline):
     model = OrderItem
 
 # Order admin customization
+
+
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_first_name', 'user_last_name', 'product_names', 'total_price', 'status', 'created_at')
+    list_display = ('id', 'user_first_name', 'user_last_name',
+                    'product_names', 'total_price', 'status', 'created_at')
     list_filter = ('status', 'created_at')
-    search_fields = ('id', 'user__username', 'user__first_name', 'user__last_name')
+    search_fields = ('id', 'user__username',
+                     'user__first_name', 'user__last_name')
     inlines = [OrderItemInline]
 
     # Custom action to delete selected orders
@@ -55,27 +74,32 @@ class OrderAdmin(admin.ModelAdmin):
     product_names.short_description = "Product Names"
 
 # Delivery admin customization
+
+
 class DeliveryAdmin(admin.ModelAdmin):
     list_display = ('id', 'order')
     search_fields = ('order__id',)
 
 # Wishlist admin customization
+
+
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ('id', 'user')
     search_fields = ('user__username',)
 
 # Cart admin customization
+
+
 class CartAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'product', 'quantity', 'created_at')
     search_fields = ('user__username', 'product__name')
 
 # Payment admin customization
+
+
 class ESEWATransactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'payment_method', 'payment_date')
     search_fields = ('payment_method',)
-
-from django.contrib import admin
-from .models import Product
 
 
 # Register models with their respective admin classes
@@ -90,5 +114,3 @@ admin.site.register(Delivery, DeliveryAdmin)
 admin.site.register(Wishlist, WishlistAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(ESEWATransaction, ESEWATransactionAdmin)
-
-
